@@ -89,7 +89,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (IsRound)
                 {
                     client.PrintToCenterHtml(
-                    $"<font color='gray'>***</font> <font class='fontSize-m' color='orange'> SPECIAL ROUND</font><font color='gray'>***</font><br>" +
+                    $"<font color='gray'>***</font> <font class='fontSize-m' color='white'> SPECIAL ROUND</font><font color='gray'> ***</font><br>" +
                     $"<font class='fontSize-l' color='Green'>[{NameOfRound}]</font><br>" +
                     $"<font class='fontSize-s' color='Orange'>www.BRUTALCI.info</font>"
                     );
