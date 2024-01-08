@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 
 namespace SpecialRounds;
 
-
 public class ConfigSpecials : BasePluginConfig
 {
     [JsonPropertyName("Prefix")] public string Prefix { get; set; } = $" {ChatColors.Default}[{ChatColors.Green}MadGames.eu{ChatColors.Default}]";

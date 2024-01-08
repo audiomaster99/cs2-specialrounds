@@ -52,7 +52,6 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
 
     public override void Load(bool hotReload)
     {
-        AddCommand("css_noscope", "Enabled/Disabled Scope", cmd_AdminNS);
         WriteColor("Special round is [*Loaded*]", ConsoleColor.Green);
         RegisterListener<Listeners.OnMapStart>(name =>
         {
@@ -132,6 +131,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 3)
             {
+                CCSPlayerController player = @event.Userid;
                 if (!is_alive(player))
                     return HookResult.Continue;
                 foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
