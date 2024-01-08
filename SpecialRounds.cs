@@ -124,10 +124,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 return HookResult.Continue;
             }
             
-            if (_roundCount >= ($"{Config.NSrounds}") && !_nsRound)
+            if (_roundCount >= Config.NSrounds && !_nsRound)
             {
                 _roundCount++;
-                if (_roundCount == ($"{Config.CooldownRounds}") + ($"{Config.NSrounds}"))
+                if (_roundCount == Config.CooldownRounds + Config.NSrounds)
                 {
                     _voteCount = 0;
                     _roundCount = 0;
@@ -147,7 +147,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 return HookResult.Continue;
             }
             _roundCount++;
-            if (_roundCount == ($"{Config.NSrounds}"))
+            if (_roundCount == Config.NSrounds)
             {
                 _nsRound = false;
             }
@@ -175,9 +175,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 return;
             }
 
-            if (_roundCount >= ($"{Config.NSrounds}") && !_nsRound)
+            if (_roundCount >= Config.NSrounds && !_nsRound)
             {
-                Server.PrintToChatAll($" {Config.Prefix} You will be able to vote fore NS round after {({Config.CooldownRounds} + {Config.NSrounds}) -_roundCount} rounds!");
+                Server.PrintToChatAll($" {Config.Prefix} You will be able to vote fore NS round after {(Config.CooldownRounds + Config.NSrounds) -_roundCount} rounds!");
                 return;
             }
             Server.PrintToChatAll($" {Config.Prefix} Enough votes collected!");
@@ -189,7 +189,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         }
 
         _users[player.EntityIndex!.Value.Value]!.IsVoted = true;
-        var successfulVoteCount = Utilities.GetPlayers().Count * {Config.VotesNeeded};
+        var successfulVoteCount = Utilities.GetPlayers().Count * Config.VotesNeeded;
         if ((int)successfulVoteCount == 0) successfulVoteCount = 1.0f;
         _voteCount++;
         Server.PrintToChatAll($" {Config.Prefix} {ChatColor.Red}{player.PlayerName} {ChatColor.Default}voted for No Scope round {_voteCount}/{(int)successfulVoteCount}");
