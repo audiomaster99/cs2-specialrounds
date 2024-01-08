@@ -32,9 +32,6 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     private static readonly int?[] IsVIP = new int?[65];
     public CounterStrikeSharp.API.Modules.Timers.Timer? timer_up;
     public CounterStrikeSharp.API.Modules.Timers.Timer? timer_decoy;
-    private const float VotePercentageNeeded = 0.3f; // Adjust this percentage as needed
-    private bool isVoteInProgress = false;
-    private int voteCount = 0;
 
 
 
@@ -110,114 +107,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     {
         It = this;
     }
-    [ConsoleCommand("css_ns", "Start No Scope Round Vote")]
-    public void StartNoScopeVote(CCSPlayerController? player, CommandInfo info)
-    {
-        if (player == null)
-        {
-            return;
-        }
-
-        if (!isVoteInProgress)
-        {
-            StartVote(player);
-        }
-        else
-        {
-            CastVote(player);
-        }
-    
-    }
-
-    private void StartVote(CCSPlayerController player, CommandInfo info)
-    {
-        isVoteInProgress = true;
-        voteCount = 0;
-
-        Server.PrintToChatAll($"{ChatColors.Blue}[BR] {ChatColors.Default}{player.PlayerName} started a vote for {ChatColors.Lime}No Scope {ChatColors.Default}round! Type '!ns' to vote.");
-
-        // Set up a timer to end the vote after a specific duration (e.g., 60 seconds)
-        CounterStrikeSharp.API.Modules.Timers.Timer.CreateTimer(TimeSpan.FromSeconds(60), () =>
-        {
-            EndVote();
-        });
-    }
-
-    private void CastVote(CCSPlayerController player, CommandInfo info)
-    {
-        if (votingPlayer == null)
-        {
-            return;
-        }
-
-        if (!isVoteInProgress)
-        {
-            Server.PrintToChat(votingPlayer, "No vote is currently in progress.");
-            return;
-        }
-
-        if (!votingPlayer.IsValid)
-        {
-            return;
-        }
-
-        if (!votingPlayer.IsValid || votingPlayer.Pawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
-        {
-            return;
-        }
-
-        if (!votingPlayer.Buttons.HasFlag(PlayerButtons.Attack2))
-        {
-            return;
-        }
-
-        voteCount++;
-        Server.PrintToChatAll($"{player.PlayerName} voted for {ChatColors.Lime}No Scope{ChatColors.Default}! Votes: {voteCount}");
-
-        // Check if the vote percentage has been reached
-        CheckVoteResult();
-    }
-
-    private void EndVote()
-    {
-        isVoteInProgress = false;
-
-        // Check if the vote percentage has been reached
-        CheckVoteResult();
-
-        if (voteCount >= VotePercentageNeeded * Utilities.GetPlayers().Count)
-        {
-            // Execute No Scope round
-            ExecuteNoScopeRound();
-        }
-        else
-        {
-            Server.PrintToChatAll("Vote for No Scope round failed. Not enough votes.");
-        }
-    }
-
-    private void CheckVoteResult()
-    {
-        if (voteCount >= VotePercentageNeeded * Utilities.GetPlayers().Count)
-        {
-            // Execute No Scope round
-            ExecuteNoScopeRound();
-        }
-    }
-
-    private void ExecuteNoScopeRound()
-    {
-        EndRound = false;
-        IsRound = true;
-        IsRoundNumber = 1;
-        NameOfRound = "NO SCOPE";
-        Server.PrintToChatAll($" {ChatColors.Blue}[BR] {ChatColors.Default}Vote Sucessfull. Starting {ChatColors.Lime}No Scope {ChatColors.Default}round!");
-
-        isVoteInProgress = false;
-        voteCount = 0;
-    }
-    
-    [ConsoleCommand("css_noscope", "Start No Scope Round")]
+    [ConsoleCommand("css_ns", "Start No Scope Round")]
     public void starNSround(CCSPlayerController? player, CommandInfo info)
     {
         if(AdminManager.PlayerHasPermissions(player, "@css/chat"))
