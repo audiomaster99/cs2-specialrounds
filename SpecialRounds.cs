@@ -41,6 +41,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public int IsRoundNumber;
     public string NameOfRound = "";
     public bool isset = false;
+    public bool[] g_Zoom = new bool[64];
+    public bool adminNoscope = false;
 
     public void OnConfigParsed(ConfigSpecials config)
     {
@@ -49,6 +51,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
 
     public override void Load(bool hotReload)
     {
+        AddCommand("css_noscope", "Enabled/Disabled Scope", cmd_AdminNS);
         WriteColor("Special round is [*Loaded*]", ConsoleColor.Green);
         RegisterListener<Listeners.OnMapStart>(name =>
         {
@@ -79,6 +82,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 }
                 OnTick(client);
             }
+            foreach (var player in Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }))
+            {
+                if (player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
+            }
         });
     }
     public static SpecialRounds It;
@@ -86,39 +93,25 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     {
         It = this;
     }
-    public static void OnTick(CCSPlayerController controller)
+    [ConsoleCommand("css_ns", "Start No Scope Round")]
+    public void starNSround(CCSPlayerController? player, CommandInfo info)
     {
-        if (!controller.PawnIsAlive)
-            return;
-        var pawn = controller.Pawn.Value;
-        var flags = (PlayerFlags)pawn.Flags;
-        var client = controller.Index;
-        var buttons = controller.Buttons;
-
-
-        if (It.IsRoundNumber != 6)
-            return;
-        if (buttons == PlayerButtons.Attack2)
-            return;
-        if (buttons == PlayerButtons.Zoom)
-            return;
-
-    }
-    [ConsoleCommand("css_startround", "Start specific round")]
-    public void startround(CCSPlayerController? player, CommandInfo info)
-    {
-        if(AdminManager.PlayerHasPermissions(player, "@css/root"))
+        if(AdminManager.PlayerHasPermissions(player, "@css/chat"))
         {
-
-            int round_id = Convert.ToInt32(info.ArgByIndex(1));
-            if (round_id == null)
+            if (player != null)
             {
                 return;
             }
-            EndRound = false;
-            IsRound = true;
-            IsRoundNumber = round_id;
-            player.PrintToChat("YOU START A ROUND!");
+            if (adminNoscope == false)
+            {
+                adminNoscope = true;
+                Server.PrintToChatAll($" {ChatColors.Lime}[NOSCOPE] {ChatColors.Default}Admin started {ChatColors.Lime}No Scope {ChatColors.Default}round!");
+            }
+            else
+            {
+                adminNoscope = false;
+                Server.PrintToChatAll($" {ChatColors.Lime}[NOSCOPE] {ChatColors.Default}Admin disabled {ChatColors.Lime}No Scope {ChatColors.Default}round!");
+            }
         }
     }
     [GameEventHandler]
@@ -129,7 +122,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             WriteColor($"SpecialRound - [*SUCCESS*] I turning off the special round.", ConsoleColor.Green);
             if(IsRoundNumber == 1)
             {
-                change_cvar("mp_buytime", $"{Config.mp_buytime}");
+
             }
             if (IsRoundNumber == 2)
             {
@@ -138,34 +131,23 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 3)
             {
-                change_cvar("sv_gravity", "800");
-            }
-            if (IsRoundNumber == 4)
-            {
-                change_cvar("mp_buytime", $"{Config.mp_buytime}");
-            }
-            if (IsRoundNumber == 5)
-            {
-                change_cvar("mp_buytime", $"{Config.mp_buytime}");
-            }
-            if (IsRoundNumber == 6)
-            {
-                change_cvar("mp_buytime", $"{Config.mp_buytime}");
-            }
-            if (IsRoundNumber == 7)
-            {
-                timer_up?.Kill();
-            }
-            if (IsRoundNumber == 8)
-            {
-                change_cvar("mp_buytime", $"{Config.mp_buytime}");
-                timer_decoy?.Kill();
-            }
-            if (IsRoundNumber == 9)
-            {
-                foreach (var player_l in Utilities.GetPlayers().Where(player => player is { IsValid: true }))
+                if (!is_alive(player))
+                    return HookResult.Continue;
+                foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
                 {
-                    player_l.PlayerPawn.Value!.VelocityModifier = 0.0f;
+                    if (weapon is { IsValid: true, Value.IsValid: true })
+                    {
+
+                        if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife") || weapon.Value.DesignerName.Contains("awp"))
+                        {
+                            continue;
+                        }
+                        weapon.Value.Remove();                          
+                    }
+                }
+                if (CheckIsHaveWeapon("awp", player) == false)
+                {
+                    player.GiveNamedItem("weapon_awp");
                 }
             }
             IsRound = false;
@@ -189,92 +171,32 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         int random = rnd.Next(0, 60);
         if (random == 1 || random == 2)
         {
-            if (Config.AllowKnifeRound)
+            if (Config.AllowNoScope)
             {
                 IsRound = true;
                 EndRound = true;
                 IsRoundNumber = 1;
-                NameOfRound = "Knife only";
+                NameOfRound = "NO SCOPE";
             }
         }
         if (random == 6 || random == 7)
         {
-            if (Config.AllowBHOPRound)
+            if (Config.AllowBhop)
             {
                 IsRound = true;
                 EndRound = true;
                 IsRoundNumber = 2;
-                NameOfRound = "Auto BHopping";
+                NameOfRound = "BHOP ROUND";
             }
         }
         if (random == 14 || random == 15)
         {
-            if (Config.AllowGravityRound)
+            if (Config.AllowScout)
             {
                 IsRound = true;
                 EndRound = true;
                 IsRoundNumber = 3;
-                NameOfRound = "Gravity round";
-            }
-        }
-        if (random == 21 || random == 22)
-        {
-            if (Config.AllowAWPRound)
-            {
-                IsRound = true;
-                EndRound = true;
-                IsRoundNumber = 4;
-                NameOfRound = "Only AWP";
-            }
-        }
-        if (random == 29 || random == 30)
-        {
-            if (Config.AllowP90Round)
-            {
-                IsRound = true;
-                EndRound = true;
-                IsRoundNumber = 5;
-                NameOfRound = "Only P90";
-            }
-        }
-        if (random == 36 || random == 37)
-        {
-            if (Config.AllowANORound)
-            {
-                IsRound = true;
-                EndRound = true;
-                IsRoundNumber = 6;
-                NameOfRound = "Only AWP + NOSCOPE";
-            }
-        }
-        if (random == 42 || random == 43)
-        {
-            if (Config.AllowANORound)
-            {
-                IsRound = true;
-                EndRound = true;
-                IsRoundNumber = 7;
-                NameOfRound = "Slaping round";
-            }
-        }
-        if (random == 49 || random == 50)
-        {
-            if (Config.AllowDecoyRound)
-            {
-                IsRound = true;
-                EndRound = true;
-                IsRoundNumber = 8;
-                NameOfRound = "Decoy round";
-            }
-        }
-        if (random == 58 || random == 59)
-        {
-            if (Config.AllowSpeedRound)
-            {
-                IsRound = true;
-                EndRound = true;
-                IsRoundNumber = 9;
-                NameOfRound = "Speed round";
+                NameOfRound = "SCOUT ROUND";
             }
         }
         if (IsRound == true)
@@ -304,7 +226,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound || Config.AllowKnifeRound)
+                if (IsRound || Config.AllowNoScope)
                 {
                     if (!is_alive(player))
                         return HookResult.Continue;
@@ -313,13 +235,16 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                         if (weapon is { IsValid: true, Value.IsValid: true })
                         {
 
-                            if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife"))
+                            if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife") || weapon.Value.DesignerName.Contains("awp"))
                             {
                                 continue;
                             }
-                            change_cvar("mp_buytime", "0");
                             weapon.Value.Remove();
                         }
+                    }
+                    if (CheckIsHaveWeapon("awp", player) == false)
+                    {
+                        player.GiveNamedItem("weapon_awp");
                     }
                     if (!EndRound)
                     {
@@ -331,7 +256,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound || Config.AllowBHOPRound)
+                if (IsRound || Config.AllowBhop)
                 {
                     change_cvar("sv_autobunnyhopping", "true");
                     change_cvar("sv_enablebunnyhopping", "true");
@@ -345,20 +270,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound || Config.AllowGravityRound)
-                {
-                    change_cvar("sv_gravity", "400");
-                    if (!EndRound)
-                    {
-                        EndRound = true;
-                    }
-                }
-            }
-            if (IsRoundNumber == 4)
-            {
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
-
-                if (IsRound || Config.AllowAWPRound)
+                if (IsRound || Config.AllowScout)
                 {
                     if (!is_alive(player))
                         return HookResult.Continue;
@@ -366,147 +278,157 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     {
                         if (weapon is { IsValid: true, Value.IsValid: true })
                         {
-                            change_cvar("mp_buytime", "0");
-                            weapon.Value.Remove();
-                        }
-                    }
-                    player.GiveNamedItem("weapon_awp");
-                    if (!EndRound)
-                    {
-                        EndRound = true;
-                    }
-                }
-            }
-            if (IsRoundNumber == 5)
-            {
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound || Config.AllowP90Round)
-                {
-                    if (!is_alive(player))
-                        return HookResult.Continue;
-                    foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
-                    {
-                        if (weapon is { IsValid: true, Value.IsValid: true })
-                        {
-                            change_cvar("mp_buytime", "0");
-                            weapon.Value.Remove();
-                        }
-                    }
-                    player.GiveNamedItem("weapon_p90");
-                    if (!EndRound)
-                    {
-                        EndRound = true;
-                    }
-                }
-            }
-            if (IsRoundNumber == 6)
-            {
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
-
-                if (IsRound || Config.AllowANORound)
-                {
-                    if (!is_alive(player))
-                        return HookResult.Continue;
-                    foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
-                    {
-                        if (weapon is { IsValid: true, Value.IsValid: true })
-                        {
                             if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife"))
                             {
                                 continue;
                             }
-                            weapon.Value.Remove();
+                            weapon.Value.Remove();                          
                         }
                     }
-                    change_cvar("mp_buytime", "0");
-                    player.GiveNamedItem("weapon_awp");
+                    if (CheckIsHaveWeapon("ssg08", player) == false)
+                    {
+                        player.GiveNamedItem("weapon_ssg08");
+                    }
                     if (!EndRound)
                     {
                         EndRound = true;
                     }
                 }
             }
-            if (IsRoundNumber == 7)
-            {
-                if (IsRound || Config.AllowSlapRound)
-                {
-                        Random rnd = new Random();
-                        int random = rnd.Next(3, 10);
-                        float random_time = random;
-                        timer_up = AddTimer(random + 0.1f, () => { goup(player); }, TimerFlags.REPEAT);
-                }
-            }
-            if (IsRoundNumber == 8)
-            {
-                if (IsRound || Config.AllowDecoyRound)
-                {
-                    foreach (var weapon in player.PlayerPawn.Value!.WeaponServices!.MyWeapons)
-                    {
-                        if (weapon is { IsValid: true, Value.IsValid: true })
-                        {
-                            if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife"))
-                            { continue; }
-                            weapon.Value.Remove();
-                        }
-                    }
-                    player.PlayerPawn.Value!.Health = 1;
-                    player.GiveNamedItem("weapon_decoy");
-                    Server.ExecuteCommand("mp_buytime 0");
-                    timer_decoy = AddTimer(2.0f, () => { DecoyCheck(player); }, TimerFlags.REPEAT);
-                    Server.PrintToConsole($"{player.PlayerName}");
-                }
-            }
-            if (IsRoundNumber == 9)
-            {
-                if (IsRound || Config.AllowSpeedRound)
-                {
-                    CCSPlayerPawn? pawn = player.PlayerPawn.Value;
-                    Server.PrintToConsole($"{player.PlayerPawn.Value!.Speed}");
-                    pawn.VelocityModifier = 2.0f;
-                    player.PlayerPawn.Value!.Health = 200;
-                }
-            }
-
         }
         isset = false;
         return HookResult.Continue;
     }
-    [GameEventHandler(HookMode.Post)]
-
-    public HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
+    private void OnTick(CCSPlayerController player) // by Slayer <3
     {
-        CCSPlayerController player = @event.Userid;
-        CCSPlayerController attacker = @event.Attacker;
+        if (player.Pawn == null || !player.Pawn.IsValid || !Config.PluginEnabled)
+            return;
 
-
-
-        if (player.Connected != PlayerConnectedState.PlayerConnected || !player.PlayerPawn.IsValid || !@event.Userid.IsValid)
-            return HookResult.Continue;
-        if (IsRoundNumber == 8)
+        if(adminNoscope || IsRoundNumber == 1)
         {
-            if (@event.Weapon != "decoy")
+            try
             {
-                player.PlayerPawn.Value!.Health = 1;
-                player.PrintToChat($" {Config.Prefix} You canno't hit player with other GUN!");
+                if(player.PlayerPawn.Value.WeaponServices!.MyWeapons.Count != 0)
+                {
+                    var ActiveWeaponName = player.PlayerPawn.Value.WeaponServices!.ActiveWeapon.Value.DesignerName;
+                    if(ActiveWeaponName.Contains("weapon_ssg08") || ActiveWeaponName.Contains("weapon_awp")
+                    || ActiveWeaponName.Contains("weapon_scar20") || ActiveWeaponName.Contains("weapon_g3sg1"))
+                    {
+                        player.PlayerPawn.Value.WeaponServices!.ActiveWeapon.Value.NextSecondaryAttackTick = Server.TickCount + 500;
+                        var buttons = player.Buttons;
+                        if(!g_Zoom[player.Slot] && (buttons & PlayerButtons.Attack2) != 0)
+                        {
+                            g_Zoom[player.Slot] = true;
+                            if(Config.ShowYouCantScopeMsg)
+                            {
+                                Server.NextFrame(() => {
+                                    player.PrintToChat($"{ChatColors.Lime}[{ChatColors.Darkred}No{ChatColors.Green}Scope{ChatColors.Lime}] {ChatColors.LightPurple}You {ChatColors.Darkred}can't {ChatColors.Lime}Scope!");
+                                });
+                            }
+                        }
+                        else if(g_Zoom[player.Slot] && (buttons & PlayerButtons.Attack2) == 0)
+                        {
+                            g_Zoom[player.Slot] = false;
+                        }
+                        
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.LogWarning($"[SLAYER Noscope] Warning: {ex}");
             }
         }
-        @event.Userid.PlayerPawn.Value!.VelocityModifier = 1;
+    }
+    [GameEventHandler(HookMode.Pre)] // by Slayer <3
+    public HookResult BulletImpact(EventBulletImpact @event, GameEventInfo info)
+    {
+        CCSPlayerController player = @event.Userid;
+        if (player.Pawn == null || !player.Pawn.IsValid || !Config.PluginEnabled || !Config.BulletTracers)
+            return HookResult.Continue;
+        if(adminNoscope || IsRoundNumber == 1)
+        {
+            if(player.PlayerPawn.Value.WeaponServices!.MyWeapons.Count != 0)
+            {
+                 try
+                {
+                    var ActiveWeaponName = player.PlayerPawn.Value.WeaponServices!.ActiveWeapon.Value.DesignerName;
+                    if(ActiveWeaponName.Contains("weapon_ssg08") || ActiveWeaponName.Contains("weapon_awp")
+                    || ActiveWeaponName.Contains("weapon_scar20") || ActiveWeaponName.Contains("weapon_g3sg1"))
+                    {
+                        
+                        Vector PlayerPosition = player.Pawn.Value.AbsOrigin;
+                        Vector BulletOrigin = new Vector(PlayerPosition.X, PlayerPosition.Y, PlayerPosition.Z+64);//bulletOrigin.X += 50.0f;
+                        float[] bulletDestination = new float[3];
+                        bulletDestination[0] = @event.X;
+                        bulletDestination[1] = @event.Y;
+                        bulletDestination[2] = @event.Z;
+                        if(player.TeamNum == 3)DrawLaserBetween(player, BulletOrigin, new Vector(bulletDestination[0], bulletDestination[1], bulletDestination[2]), Color.Blue, 1.0f, 2.0f);
+                        else if(player.TeamNum == 2)DrawLaserBetween(player, BulletOrigin, new Vector(bulletDestination[0], bulletDestination[1], bulletDestination[2]), Color.Red, 1.0f, 2.0f);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogWarning($"[SLAYER Noscope] Warning: {ex}");
+                }
+            }
+        }
         return HookResult.Continue;
     }
-
-    [GameEventHandler]
-    public HookResult OnWeaponZoom(EventWeaponZoom @event, GameEventInfo info)
+    [GameEventHandler(HookMode.Post)]
+    public HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
+    {   
+        CCSPlayerController player = @event.Userid;
+        if (player == null || !player.Pawn.IsValid) 
+        { 
+            return HookResult.Continue; 
+        }
+        if (!adminNoscope || IsRoundNumber != 1)
+        { 
+            return HookResult.Continue; 
+        }
+        var attacker = @event.Attacker;
+        var client = player.Index;
+        if (@event.Weapon == "knife")
+            {
+                if (adminNoscope || IsRoundNumber == 1)
+                {
+                    if (@event.Userid.PlayerPawn.Value.Health + @event.DmgHealth <= 100)
+                    {
+                        @event.Userid.PlayerPawn.Value.Health = @event.Userid.PlayerPawn.Value.Health += @event.DmgHealth;
+                        if (attacker.IsValid)
+                        {
+                            attacker.PrintToChat($" {ChatColors.Gold}SPECIAL ROUND! {ChatColors.Default}You can't {ChatColors.Red}Knife {ChatColors.Default}players!");
+                        }
+                    }
+                    else
+                    {
+                        @event.Userid.PlayerPawn.Value.Health = 100;
+                    }
+                }
+            }
+            @event.Userid.PlayerPawn.Value.VelocityModifier = 1;
+            return HookResult.Continue;
+        }
+    
+    // by Slayer <3
+    public void DrawLaserBetween(CCSPlayerController player, Vector startPos, Vector endPos, Color color, float life, float width)
     {
-        if (IsRoundNumber != 6) { return HookResult.Continue; }
-        var player = @event.Userid;
-        var weaponservices = player.PlayerPawn.Value.WeaponServices!;
-        var currentWeapon = weaponservices.ActiveWeapon.Value.DesignerName;
-
-        weaponservices.ActiveWeapon.Value.Remove();
-        player.GiveNamedItem(currentWeapon);
-
-
-        return HookResult.Continue;
+        CBeam beam = Utilities.CreateEntityByName<CBeam>("beam");
+        if (beam == null)
+        {
+            Logger.LogError($"Failed to create beam...");
+            return;
+        }
+        beam.Render = color;
+        beam.Width = width;
+        
+        beam.Teleport(startPos, player.PlayerPawn.Value.AbsRotation, player.PlayerPawn.Value.AbsVelocity);
+        beam.EndPos.X = endPos.X;
+        beam.EndPos.Y = endPos.Y;
+        beam.EndPos.Z = endPos.Z;
+        beam.DispatchSpawn();
+        AddTimer(life, () => { beam.Remove(); }); // destroy beam after specific time
     }
 }
