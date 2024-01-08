@@ -177,7 +177,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
 
             if (_roundCount >= ($"{Config.NSrounds}") && !_nsRound)
             {
-                Server.PrintToChatAll($" {Config.Prefix} You will be able to vote fore NS round after {({Config.CooldownRounds} + {Config.NSrounds})-_roundCount} rounds!");
+                Server.PrintToChatAll($" {Config.Prefix} You will be able to vote fore NS round after {({Config.CooldownRounds} + {Config.NSrounds}) -_roundCount} rounds!");
                 return;
             }
             Server.PrintToChatAll($" {Config.Prefix} Enough votes collected!");
