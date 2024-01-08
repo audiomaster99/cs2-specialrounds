@@ -89,8 +89,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (IsRound)
                 {
                     client.PrintToCenterHtml(
-                    $"<font color='gray'>----</font> <font class='fontSize-l' color='green'>Special Round</font><font color='gray'>----</font><br>" +
-                    $"<font color='gray'>Now playing</font> <font class='fontSize-m' color='Orange'>[{NameOfRound}]</font><br>" +
+                    $"<font color='gray'>----</font> <font class='fontSize-m' color='orange'>SPECIAL ROUND</font><font color='gray'>----</font><br>" +
+                    $"<font color='gray'>Now playing</font> <font class='fontSize-l' color='Green'>[{NameOfRound}]</font><br>" +
                     $"<font class='fontSize-s' color='Orange'>www.BRUTALCI.info</font>"
                     );
                 }
@@ -112,18 +112,24 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     {
         if(AdminManager.PlayerHasPermissions(player, "@css/chat"))
         {
-            if (player != null)
+            if (player == null)
             {
                 return;
             }
             if (adminNoscope == false)
             {
-                adminNoscope = true;
+                // adminNoscope = true;
+                EndRound = false;
+                IsRound = true;
+                IsRoundNumber = 1;
                 Server.PrintToChatAll($" {ChatColors.Lime}[NOSCOPE] {ChatColors.Default}Admin started {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
             else
             {
-                adminNoscope = false;
+                // adminNoscope = false;
+                EndRound = true;
+                IsRound = false;
+                IsRoundNumber = 0;
                 Server.PrintToChatAll($" {ChatColors.Lime}[NOSCOPE] {ChatColors.Default}Admin disabled {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
         }
@@ -416,7 +422,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         { 
             return HookResult.Continue; 
         }
-        if (!adminNoscope || IsRoundNumber != 1)
+        if (IsRoundNumber != 1)
         { 
             return HookResult.Continue; 
         }
@@ -424,20 +430,17 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         var client = player.Index;
         if (@event.Weapon == "knife")
             {
-                if (adminNoscope || IsRoundNumber == 1)
+                if (IsRoundNumber == 1 && @event.Userid.PlayerPawn.Value.Health + @event.DmgHealth <= 100)
                 {
-                    if (@event.Userid.PlayerPawn.Value.Health + @event.DmgHealth <= 100)
+                    @event.Userid.PlayerPawn.Value.Health = @event.Userid.PlayerPawn.Value.Health += @event.DmgHealth;
+                    if (attacker.IsValid)
                     {
-                        @event.Userid.PlayerPawn.Value.Health = @event.Userid.PlayerPawn.Value.Health += @event.DmgHealth;
-                        if (attacker.IsValid)
-                        {
-                            attacker.PrintToChat($" {ChatColors.Green}SPECIAL ROUND! {ChatColors.Default}You can't {ChatColors.Red}Knife {ChatColors.Default}players!");
-                        }
+                        attacker.PrintToChat($" {ChatColors.Green}SPECIAL ROUND! {ChatColors.Default}You can't {ChatColors.Red}Knife {ChatColors.Default}players!");
                     }
-                    else
-                    {
-                        @event.Userid.PlayerPawn.Value.Health = 100;
-                    }
+                }
+                else
+                {
+                    @event.Userid.PlayerPawn.Value.Health = 100;
                 }
             }
         @event.Userid.PlayerPawn.Value.VelocityModifier = 1;
