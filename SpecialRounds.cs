@@ -44,6 +44,12 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public bool isset = false;
     public bool[] g_Zoom = new bool[64];
     public bool adminNoscope = false;
+    private bool _nsRound;
+    private bool _isVotingSucces;
+    
+    private UsersSettings?[] _users = new UsersSettings?[65];
+    private int _roundCount = 0;
+    private int _voteCount = 0;
     CCSGameRules? _gameRules = null;
 
     public void OnConfigParsed(ConfigSpecials config)
@@ -65,6 +71,16 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
 
     public override void Load(bool hotReload)
     {
+        RegisterListener<Listeners.OnClientConnected>((slot =>
+        {
+            _users[slot + 1] = new UsersSettings { IsVoted = false };
+        }));
+        RegisterListener<Listeners.OnClientDisconnectPost>((slot =>
+        {
+            if (_users[slot + 1]!.IsVoted) _voteCount--;
+
+            _users[slot + 1] = null;
+        }));
         WriteColor("Special round is [*Loaded*]", ConsoleColor.Green);
         RegisterListener<Listeners.OnMapStart>(name =>
         {
@@ -101,13 +117,89 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
             }
         });
+        RegisterEventHandler<EventRoundEnd>(((@event, info) =>
+        {
+            if (!_isVotingSucces) 
+            {
+                return HookResult.Continue;
+            }
+            
+            if (_roundCount >= {Config.NSrounds} && !_nsRound)
+            {
+                _roundCount++;
+                if (_roundCount == {Config.CooldownRounds} + {Config.NSrounds})
+                {
+                    _voteCount = 0;
+                    _roundCount = 0;
+                    _isVotingSucces = false;
+                    foreach (var player in Utilities.GetPlayers())
+                    {
+                        _users[player.EntityIndex!.Value.Value]!.IsVoted = false;
+                    }
+                    Server.PrintToChatAll("The NoZoom battle is over!");
+                }
+                return HookResult.Continue;
+            }
+            if (!_nsRound)
+            {
+                _nsRound = true;
+                _roundCount = 0;
+                return HookResult.Continue;
+            }
+            _roundCount++;
+            if (_roundCount == {Config.NSrounds})
+            {
+                _nsRound = false;
+            }
+
+            return HookResult.Continue;
+        }));
     }
     public static SpecialRounds It;
     public SpecialRounds()
     {
         It = this;
     }
-    [ConsoleCommand("css_ns", "Start No Scope Round")]
+    [ConsoleCommand("css_ns", "Start No Scope Vote")]
+    public void starNSvote(CCSPlayerController? player, CommandInfo info)
+    {
+        if (player == null) 
+        {
+            return;
+        }
+        if (_isVotingSucces)
+        {
+            if (_nsRound)
+            {
+                Server.PrintToChatAll($" {Config.Prefix} No Scope round is allready playing!");
+                return;
+            }
+
+            if (_roundCount >= {Config.NSrounds} && !_nsRound)
+            {
+                Server.PrintToChatAll($" {Config.Prefix} You will be able to vote fore NS round after {({Config.CooldownRounds} + {Config.NSrounds})-_roundCount} rounds!");
+                return;
+            }
+            Server.PrintToChatAll($" {Config.Prefix} Enough votes collected!");
+        }
+        if (_users[player.EntityIndex!.Value.Value]!.IsVoted)
+        {
+            Server.PrintToChatAll($" {Config.Prefix} You have already voted for NoScope Round!");
+            return;
+        }
+
+        _users[player.EntityIndex!.Value.Value]!.IsVoted = true;
+        var successfulVoteCount = Utilities.GetPlayers().Count * {Config.VotesNeeded};
+        if ((int)successfulVoteCount == 0) successfulVoteCount = 1.0f;
+        _voteCount++;
+        Server.PrintToChatAll($" {Config.Prefix} {ChatColor.Red}{player.PlayerName} {ChatColor.Default}voted for No Scope round {_voteCount}/{(int)successfulVoteCount}");
+        if (_voteCount == (int)successfulVoteCount)
+        {
+            _isVotingSucces = true;
+            Server.PrintToChatAll($" {Config.Prefix} NoScope starts next round!");
+        }
+    }
+    [ConsoleCommand("css_noscope", "Start No Scope Round")]
     public void starNSround(CCSPlayerController? player, CommandInfo info)
     {
         if(AdminManager.PlayerHasPermissions(player, "@css/chat"))

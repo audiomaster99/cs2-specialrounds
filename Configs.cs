@@ -13,4 +13,7 @@ public class ConfigSpecials : BasePluginConfig
     [JsonPropertyName("AllowScout")] public bool AllowScout { get; set; } = true;
     [JsonPropertyName("AllowBhop")] public bool AllowBhop { get; set; } = true;
     [JsonPropertyName("NoScopeMsg")] public bool NoScopeMsg { get; set; } = true;
+    [JsonPropertyName("NSrounds")] public int NSrounds { get; set; } = 1;
+    [JsonPropertyName("CooldownRounds")] public int CooldownRounds { get; set; } = 2;
+    [JsonPropertyName("VotesNeeded")] public int VotesNeeded { get; set; } = 2;
 }
