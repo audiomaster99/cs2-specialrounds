@@ -10,7 +10,6 @@ namespace SpecialRounds
 {
     public partial class SpecialRounds
     {
-        private UsersSettings?[] _users = new UsersSettings?[65];
         internal static CCSGameRules GameRules()
         {
             return Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
