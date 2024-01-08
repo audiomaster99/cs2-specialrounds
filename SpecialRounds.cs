@@ -111,6 +111,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         It = this;
     }
     [ConsoleCommand("css_ns", "Start No Scope Round Vote")]
+    {
         public void StartNoScopeVote(CCSPlayerController? player, CommandInfo info)
         {
             if (player == null)
@@ -216,8 +217,6 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             isVoteInProgress = false;
             voteCount = 0;
         }
-
-        // ... (rest of your code)
     }
     [ConsoleCommand("css_noscope", "Start No Scope Round")]
     public void starNSround(CCSPlayerController? player, CommandInfo info)
