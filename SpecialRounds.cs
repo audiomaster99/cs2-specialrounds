@@ -89,18 +89,19 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
 
                 if (_countRound >= _config.NzRounds && !_nzRound)
                 {
-                    Server.PrintToChatAll($"You will be able to vote for NoZoom battle after {(_config.NzCooldownRounds + _config.NzRounds)-_countRound} rounds!");
+                    Server.PrintToChatAll($"You will be able to vote for NoZoom battle after {(_config.NzCooldownRounds + _config.NzRounds) - _countRound} rounds!");
                     return;
                 }
                 Server.PrintToChatAll("Enough votes have already been collected!");
             }
-            if (_users[player.Index!.Value.Value]!.IsVoted)
+
+            if (_users[player.Index!.Value]!.IsVoted)
             {
                 Server.PrintToChatAll("You have already voted for NoZoom battle!");
                 return;
             }
 
-            _users[player.Index!.Value.Value]!.IsVoted = true;
+            _users[player.Index!.Value]!.IsVoted = true;
             var successfulVoteCount = Utilities.GetPlayers().Count * _config.NzNeed;
             if ((int)successfulVoteCount == 0) successfulVoteCount = 1.0f;
             _countVote++;
@@ -138,18 +139,21 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         RegisterEventHandler<EventRoundEnd>(((@event, info) =>
         {
             if (!_isVoteSuccessful) return HookResult.Continue;
-            
+
             if (_countRound >= _config.NzRounds && !_nzRound)
             {
                 _countRound++;
-                if (_countRound == _config.NzCooldownRounds+_config.NzRounds)
+                if (_countRound == _config.NzCooldownRounds + _config.NzRounds)
                 {
                     _countVote = 0;
                     _countRound = 0;
                     _isVoteSuccessful = false;
                     foreach (var player in Utilities.GetPlayers())
                     {
-                        _users[player.Index!.Value.Value]!.IsVoted = false;
+                        if (player.Index.HasValue)
+                        {
+                            _users[player.Index.Value]!.IsVoted = false;
+                        }
                     }
                     Server.PrintToChatAll("The NoZoom battle is over!");
                 }
