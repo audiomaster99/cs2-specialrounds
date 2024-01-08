@@ -376,6 +376,25 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         }
         return HookResult.Continue;
     }
+    // by Slayer <3
+    public void DrawLaserBetween(CCSPlayerController player, Vector startPos, Vector endPos, Color color, float life, float width)
+    {
+        CBeam beam = Utilities.CreateEntityByName<CBeam>("beam");
+        if (beam == null)
+        {
+            Logger.LogError($"Failed to create beam...");
+            return;
+        }
+        beam.Render = color;
+        beam.Width = width;
+        
+        beam.Teleport(startPos, player.PlayerPawn.Value.AbsRotation, player.PlayerPawn.Value.AbsVelocity);
+        beam.EndPos.X = endPos.X;
+        beam.EndPos.Y = endPos.Y;
+        beam.EndPos.Z = endPos.Z;
+        beam.DispatchSpawn();
+        AddTimer(life, () => { beam.Remove(); }); // destroy beam after specific time
+    }
     [GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
     {   
@@ -408,27 +427,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     }
                 }
             }
-            @event.Userid.PlayerPawn.Value.VelocityModifier = 1;
-            return HookResult.Continue;
-        }
-    
-    // by Slayer <3
-    public void DrawLaserBetween(CCSPlayerController player, Vector startPos, Vector endPos, Color color, float life, float width)
-    {
-        CBeam beam = Utilities.CreateEntityByName<CBeam>("beam");
-        if (beam == null)
-        {
-            Logger.LogError($"Failed to create beam...");
-            return;
-        }
-        beam.Render = color;
-        beam.Width = width;
-        
-        beam.Teleport(startPos, player.PlayerPawn.Value.AbsRotation, player.PlayerPawn.Value.AbsVelocity);
-        beam.EndPos.X = endPos.X;
-        beam.EndPos.Y = endPos.Y;
-        beam.EndPos.Z = endPos.Z;
-        beam.DispatchSpawn();
-        AddTimer(life, () => { beam.Remove(); }); // destroy beam after specific time
+        @event.Userid.PlayerPawn.Value.VelocityModifier = 1;
+        return HookResult.Continue;
     }
 }
