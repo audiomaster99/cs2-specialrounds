@@ -305,7 +305,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     }
     private void OnTick(CCSPlayerController player) // by Slayer <3
     {
-        if (player.Pawn == null || !player.Pawn.IsValid || !Config.PluginEnabled)
+        if (player.Pawn == null || !player.Pawn.IsValid)
             return;
 
         if(adminNoscope || IsRoundNumber == 1)
@@ -320,21 +320,15 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     {
                         player.PlayerPawn.Value.WeaponServices!.ActiveWeapon.Value.NextSecondaryAttackTick = Server.TickCount + 500;
                         var buttons = player.Buttons;
-                        if(!g_Zoom[player.Slot] && (buttons & PlayerButtons.Attack2) != 0)
+                        if((buttons & PlayerButtons.Attack2) != 0)
                         {
-                            g_Zoom[player.Slot] = true;
-                            if(Config.ShowYouCantScopeMsg)
+                            if(Config.NoScopeMsg)
                             {
                                 Server.NextFrame(() => {
-                                    player.PrintToChat($"{ChatColors.Lime}[{ChatColors.Darkred}No{ChatColors.Green}Scope{ChatColors.Lime}] {ChatColors.LightPurple}You {ChatColors.Darkred}can't {ChatColors.Lime}Scope!");
+                                    player.PrintToChat($" {ChatColors.Red}You can't Scope !!");
                                 });
                             }
-                        }
-                        else if(g_Zoom[player.Slot] && (buttons & PlayerButtons.Attack2) == 0)
-                        {
-                            g_Zoom[player.Slot] = false;
-                        }
-                        
+                        }  
                     }
                 }
             }
@@ -348,7 +342,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public HookResult BulletImpact(EventBulletImpact @event, GameEventInfo info)
     {
         CCSPlayerController player = @event.Userid;
-        if (player.Pawn == null || !player.Pawn.IsValid || !Config.PluginEnabled || !Config.BulletTracers)
+        if (player.Pawn == null || !player.Pawn.IsValid)
             return HookResult.Continue;
         if(adminNoscope || IsRoundNumber == 1)
         {
@@ -373,7 +367,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 }
                 catch(Exception ex)
                 {
-                    Logger.LogWarning($"[SLAYER Noscope] Warning: {ex}");
+                    // Logger.LogWarning($"[SLAYER Noscope] Warning: {ex}");
                 }
             }
         }
@@ -385,7 +379,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         CBeam beam = Utilities.CreateEntityByName<CBeam>("beam");
         if (beam == null)
         {
-            Logger.LogError($"Failed to create beam...");
+            // Logger.LogError($"Failed to create beam...");
             return;
         }
         beam.Render = color;
