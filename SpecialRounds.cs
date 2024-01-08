@@ -129,7 +129,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     
     }
 
-    private void StartVote(CCSPlayerController initiatingPlayer)
+    private void StartVote(CCSPlayerController player, CommandInfo info)
     {
         isVoteInProgress = true;
         voteCount = 0;
@@ -137,13 +137,13 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         Server.PrintToChatAll($"{ChatColors.Blue}[BR] {ChatColors.Default}{player.PlayerName} started a vote for {ChatColors.Lime}No Scope {ChatColors.Default}round! Type '!ns' to vote.");
 
         // Set up a timer to end the vote after a specific duration (e.g., 60 seconds)
-        Timer.CreateTimer(TimeSpan.FromSeconds(60), () =>
+        CounterStrikeSharp.API.Modules.Timers.Timer.CreateTimer(TimeSpan.FromSeconds(60), () =>
         {
             EndVote();
         });
     }
 
-    private void CastVote(CCSPlayerController votingPlayer)
+    private void CastVote(CCSPlayerController player, CommandInfo info)
     {
         if (votingPlayer == null)
         {
