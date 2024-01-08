@@ -124,10 +124,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 return HookResult.Continue;
             }
             
-            if (_roundCount >= {Config.NSrounds} && !_nsRound)
+            if (_roundCount >= ($"{Config.NSrounds}") && !_nsRound)
             {
                 _roundCount++;
-                if (_roundCount == {Config.CooldownRounds} + {Config.NSrounds})
+                if (_roundCount == ($"{Config.CooldownRounds}") + ($"{Config.NSrounds}"))
                 {
                     _voteCount = 0;
                     _roundCount = 0;
