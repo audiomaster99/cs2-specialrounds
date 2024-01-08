@@ -26,9 +26,9 @@ public static class GetUnixTime
 public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
 {
     public override string ModuleName => "SpecialRounds";
-    public override string ModuleAuthor => "DeadSwim";
-    public override string ModuleDescription => "Simple Special rounds.";
-    public override string ModuleVersion => "V. 1.0.6";
+    public override string ModuleAuthor => "DeadSwim, Slayer, Audio";
+    public override string ModuleDescription => "Special rounds for AWP Server.";
+    public override string ModuleVersion => "V. 1.0.0";
     private static readonly int?[] IsVIP = new int?[65];
     public CounterStrikeSharp.API.Modules.Timers.Timer? timer_up;
     public CounterStrikeSharp.API.Modules.Timers.Timer? timer_decoy;
@@ -89,8 +89,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (IsRound)
                 {
                     client.PrintToCenterHtml(
-                    $"<font color='gray'>----</font> <font class='fontSize-m' color='orange'>SPECIAL ROUND</font><font color='gray'>----</font><br>" +
-                    $"<font color='gray'>Now playing</font> <font class='fontSize-l' color='Green'>[{NameOfRound}]</font><br>" +
+                    $"<font color='gray'>***</font> <font class='fontSize-m' color='orange'> SPECIAL ROUND </font><font color='gray'>***</font><br>" +
+                    $"<font class='fontSize-l' color='Green'>[{NameOfRound}]</font><br>" +
                     $"<font class='fontSize-s' color='Orange'>www.BRUTALCI.info</font>"
                     );
                 }
@@ -122,7 +122,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 EndRound = false;
                 IsRound = true;
                 IsRoundNumber = 1;
-                Server.PrintToChatAll($" {ChatColors.Lime}[NOSCOPE] {ChatColors.Default}Admin started {ChatColors.Lime}No Scope {ChatColors.Default}round!");
+                NameOfRound = "NO SCOPE";
+                Server.PrintToChatAll($" {ChatColors.Blue}[BR] {ChatColors.Default}Admin started {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
             else
             {
@@ -130,7 +131,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 EndRound = true;
                 IsRound = false;
                 IsRoundNumber = 0;
-                Server.PrintToChatAll($" {ChatColors.Lime}[NOSCOPE] {ChatColors.Default}Admin disabled {ChatColors.Lime}No Scope {ChatColors.Default}round!");
+                NameOfRound = "NO SCOPE";
+                Server.PrintToChatAll($" {ChatColors.Blue}[BR] {ChatColors.Default}Admin disabled {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
         }
     }
@@ -193,7 +195,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         }
         Random rnd = new Random();
         int random = rnd.Next(0, 60);
-        if (random == 1 || random == 2)
+        if (random == 1 || random == 2 || random == 14 || random == 15)
         {
             if (Config.AllowNoScope)
             {
@@ -203,7 +205,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 NameOfRound = "NO SCOPE";
             }
         }
-        if (random == 6 || random == 7)
+        if (random == 21 || random == 22)
         {
             if (Config.AllowBhop)
             {
@@ -213,7 +215,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 NameOfRound = "BHOP ROUND";
             }
         }
-        if (random == 14 || random == 15)
+        if (random == 42 || random == 43)
         {
             if (Config.AllowScout)
             {
@@ -347,7 +349,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                             if(Config.NoScopeMsg)
                             {
                                 Server.NextFrame(() => {
-                                    player.PrintToChat($" {ChatColors.Red}You can't Scope !!");
+                                    player.PrintToCenter($" {ChatColors.Red}!! NO SCOPE !!");
                                 });
                             }
                         }  
