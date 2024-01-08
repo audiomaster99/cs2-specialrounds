@@ -2,13 +2,10 @@ using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 
-namespace NZ;
+namespace SpecialRounds;
 
-public class NZ : BasePlugin
+public partial class SpecialRounds
 {
-    public override string ModuleName { get; }
-    public override string ModuleVersion { get; }
-
     private UsersSettings?[] _users = new UsersSettings?[65];
     private Config _config;
 
