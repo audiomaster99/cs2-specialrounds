@@ -8,6 +8,7 @@ using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace SpecialRounds;
 [MinimumApiVersion(120)]
