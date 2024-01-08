@@ -331,7 +331,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public HookResult OnClientSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController player = @event.Userid;
-        if (!WarmupPeriod || !adminNocope || !IsRound)
+        if (!WarmupPeriod || !IsRound)
         {
             if (player == null || !player.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
             {
