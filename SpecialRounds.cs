@@ -327,6 +327,25 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         isset = false;
         return HookResult.Continue;
     }
+    [GameEventHandler]
+    public HookResult OnClientSpawn(EventPlayerSpawn @event, GameEventInfo info)
+    {
+        CCSPlayerController player = @event.Userid;
+        if (!WarmupPeriod || !adminNocope || !IsRound)
+        {
+            if (player == null || !player.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
+            {
+                // Skip invalid players
+                return HookResult.Continue;
+            }
+            if (CheckIsHaveWeapon("awp", player) == false)
+            {
+                player.GiveNamedItem("weapon_awp");
+            }
+            return HookResult.Continue;
+        }
+        return HookResult.Continue;
+    }
     private void OnTick(CCSPlayerController player) // by Slayer <3
     {
         if (player.Pawn == null || !player.Pawn.IsValid)
