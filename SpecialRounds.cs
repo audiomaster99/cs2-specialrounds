@@ -131,24 +131,26 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 3)
             {
-                CCSPlayerController player = @event.Userid;
-                if (!is_alive(player))
-                    return HookResult.Continue;
-                foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
+                foreach (var player in Utilities.GetPlayers())
                 {
-                    if (weapon is { IsValid: true, Value.IsValid: true })
+                    if (!is_alive(player))
+                        return HookResult.Continue;
+                    foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
                     {
-
-                        if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife") || weapon.Value.DesignerName.Contains("awp"))
+                        if (weapon is { IsValid: true, Value.IsValid: true })
                         {
-                            continue;
+
+                            if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife") || weapon.Value.DesignerName.Contains("awp"))
+                            {
+                                continue;
+                            }
+                            weapon.Value.Remove();                          
                         }
-                        weapon.Value.Remove();                          
                     }
-                }
-                if (CheckIsHaveWeapon("awp", player) == false)
-                {
-                    player.GiveNamedItem("weapon_awp");
+                    if (CheckIsHaveWeapon("awp", player) == false)
+                    {
+                        player.GiveNamedItem("weapon_awp");
+                    }
                 }
             }
             IsRound = false;
@@ -338,7 +340,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             catch(Exception ex)
             {
-                Logger.LogWarning($"[SLAYER Noscope] Warning: {ex}");
+                WriteColor("Warning: {ex}", ConsoleColor.Green);
             }
         }
     }
