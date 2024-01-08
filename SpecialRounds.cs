@@ -94,13 +94,13 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 }
                 Server.PrintToChatAll("Enough votes have already been collected!");
             }
-            if (_users[player.EntityIndex!.Value.Value]!.IsVoted)
+            if (_users[player.Index!.Value.Value]!.IsVoted)
             {
                 Server.PrintToChatAll("You have already voted for NoZoom battle!");
                 return;
             }
 
-            _users[player.EntityIndex!.Value.Value]!.IsVoted = true;
+            _users[player.Index!.Value.Value]!.IsVoted = true;
             var successfulVoteCount = Utilities.GetPlayers().Count * _config.NzNeed;
             if ((int)successfulVoteCount == 0) successfulVoteCount = 1.0f;
             _countVote++;
@@ -149,7 +149,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     _isVoteSuccessful = false;
                     foreach (var player in Utilities.GetPlayers())
                     {
-                        _users[player.EntityIndex!.Value.Value]!.IsVoted = false;
+                        _users[player.Index!.Value.Value]!.IsVoted = false;
                     }
                     Server.PrintToChatAll("The NoZoom battle is over!");
                 }
