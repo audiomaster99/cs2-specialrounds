@@ -32,6 +32,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public override string ModuleVersion => "V. 1.0.0";
     private static readonly int?[] IsVIP = new int?[65];
     private UsersSettings?[] _users = new UsersSettings?[65];
+    private Config _config;
     private int _roundCount = 0;
     private int _voteCount = 0;
     private bool _nsRound;
