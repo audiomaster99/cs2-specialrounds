@@ -44,11 +44,24 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public bool isset = false;
     public bool[] g_Zoom = new bool[64];
     public bool adminNoscope = false;
+    CCSGameRules? _gameRules = null;
 
     public void OnConfigParsed(ConfigSpecials config)
     {
         Config = config;
     }
+
+    public bool WarmupPeriod
+        {
+            get
+            {
+                if (_gameRules is null)
+                    SetGameRules();
+
+                return _gameRules is not null && _gameRules.WarmupPeriod;
+            }
+        }
+    void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
 
     public override void Load(bool hotReload)
     {
@@ -76,8 +89,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (IsRound)
                 {
                     client.PrintToCenterHtml(
-                    $"<font color='gray'>----</font> <font class='fontSize-l' color='green'>Special Rounds</font><font color='gray'>----</font><br>" +
-                    $"<font color='gray'>Now playing</font> <font class='fontSize-m' color='green'>[{NameOfRound}]</font>"
+                    $"<font color='gray'>----</font> <font class='fontSize-l' color='green'>Special Round</font><font color='gray'>----</font><br>" +
+                    $"<font color='gray'>Now playing</font> <font class='fontSize-m' color='Orange'>[{NameOfRound}]</font><br>" +
+                    $"<font class='fontSize-s' color='Orange'>www.BRUTALCI.info</font>"
                     );
                 }
                 OnTick(client);
@@ -116,10 +130,11 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     }
     [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
-    {
+    {   
         if (EndRound)
         {
-            WriteColor($"SpecialRound - [*SUCCESS*] I turning off the special round.", ConsoleColor.Green);
+
+            WriteColor($"[SPECIALROUNDS] - *SUCCESS*  Disabling Special Round.", ConsoleColor.Green);
             if(IsRoundNumber == 1)
             {
 
@@ -162,12 +177,12 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         }
         if (IsRound)
         {
-            WriteColor($"SpecialRound - [*WARNING*] I cannot start new special round, its now.", ConsoleColor.Yellow);
+            WriteColor($"[SPECIALROUNDS] - *WARNING*  Cannot start special round while one is active!", ConsoleColor.Yellow);
             return HookResult.Continue;
         }
         if (Round < 0)
         {
-            WriteColor("SpecialRound - [*WARNING*] I cannot start new special round, its round < 5.", ConsoleColor.Yellow);
+            WriteColor("[SPECIALROUNDS] - *WARNING*  Cannot start special round < 5.", ConsoleColor.Yellow);
             return HookResult.Continue;
         }
         Random rnd = new Random();
@@ -204,7 +219,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         }
         if (IsRound == true)
         {
-            WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound} Number is:{random}.", ConsoleColor.Green);
+            WriteColor($"[SPECIALROUNDS] - Starting special round: {NameOfRound} Number: {random}.", ConsoleColor.Green);
         }
         //Server.PrintToConsole($" Settings : {NameOfRound} / IsRound {IsRound} / IsRoundNumber {IsRoundNumber} / Random number {random}");
 
@@ -213,7 +228,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     [GameEventHandler]
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        if (GameRules().WarmupPeriod)
+        if (WarmupPeriod)
         {
             IsRound = false;
             EndRound = false;
@@ -225,9 +240,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         {
             CCSPlayerController player = l_player;
             var client = player.Index;
+            
             if (IsRoundNumber == 1)
             {
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
+                WriteColor($"[SPECIALROUNDS] - Starting special round {NameOfRound}.", ConsoleColor.Green);
 
                 if (IsRound || Config.AllowNoScope)
                 {
@@ -257,7 +273,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 2)
             {
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
+                WriteColor($"[SPECIALROUNDS] - Starting special round {NameOfRound}.", ConsoleColor.Green);
 
                 if (IsRound || Config.AllowBhop)
                 {
@@ -271,7 +287,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 3 )
             {
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
+                WriteColor($"[SPECIALROUNDS] - Starting special round {NameOfRound}.", ConsoleColor.Green);
 
                 if (IsRound || Config.AllowScout)
                 {
@@ -415,7 +431,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                         @event.Userid.PlayerPawn.Value.Health = @event.Userid.PlayerPawn.Value.Health += @event.DmgHealth;
                         if (attacker.IsValid)
                         {
-                            attacker.PrintToChat($" {ChatColors.Gold}SPECIAL ROUND! {ChatColors.Default}You can't {ChatColors.Red}Knife {ChatColors.Default}players!");
+                            attacker.PrintToChat($" {ChatColors.Green}SPECIAL ROUND! {ChatColors.Default}You can't {ChatColors.Red}Knife {ChatColors.Default}players!");
                         }
                     }
                     else
