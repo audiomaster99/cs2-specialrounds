@@ -31,8 +31,11 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public override string ModuleDescription => "Special rounds for AWP Server.";
     public override string ModuleVersion => "V. 1.0.0";
     private static readonly int?[] IsVIP = new int?[65];
-    public CounterStrikeSharp.API.Modules.Timers.Timer? timer_up;
-    public CounterStrikeSharp.API.Modules.Timers.Timer? timer_decoy;
+    private UsersSettings?[] _users = new UsersSettings?[65];
+    private int _roundCount = 0;
+    private int _voteCount = 0;
+    private bool _nsRound;
+    private bool _isVotingSucces;
 
 
 
@@ -45,12 +48,11 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public bool isset = false;
     public bool[] g_Zoom = new bool[64];
     public bool adminNoscope = false;
-    private bool _nsRound;
-    private bool _isVotingSucces;
+    public float VotesNeeded { get; set; }
+    public int NSrounds { get; set; }
+    public int CooldownRounds { get; set; }
     
-    private UsersSettings?[] _users = new UsersSettings?[65];
-    private int _roundCount = 0;
-    private int _voteCount = 0;
+    
     CCSGameRules? _gameRules = null;
 
     public void OnConfigParsed(ConfigSpecials config)
