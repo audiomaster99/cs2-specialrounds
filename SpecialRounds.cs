@@ -75,6 +75,14 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             Round = 0;
 
         });
+        RegisterEventHandler<EventRoundEnd>((@event, info) =>
+        {
+            EndRound = false;
+            IsRound = false;
+            NameOfRound = "";
+            IsRoundNumber = 0;
+            Round = 0;
+        });
         RegisterListener<Listeners.OnTick>(() =>
         {
             for (int i = 1; i < Server.MaxPlayers; i++)
@@ -128,10 +136,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             else
             {
                 // adminNoscope = false;
-                EndRound = true;
+                EndRound = false;
                 IsRound = false;
                 IsRoundNumber = 0;
-                NameOfRound = "NO SCOPE";
+                NameOfRound = "";
                 Server.PrintToChatAll($" {ChatColors.Blue}[BR] {ChatColors.Default}Admin disabled {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
         }
