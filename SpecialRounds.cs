@@ -77,9 +77,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         });
         RegisterEventHandler<EventRoundEnd>((@event, info) =>
         {
-            EndRound = false;
+            EndRound = true;
             IsRound = false;
-            NameOfRound = "";
             IsRoundNumber = 0;
             Round = 0;
         });
