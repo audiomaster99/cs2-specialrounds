@@ -138,8 +138,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 // adminNoscope = false;
                 EndRound = false;
                 IsRound = false;
-                IsRoundNumber = 0;
                 NameOfRound = "";
+                IsRoundNumber = 0;
+                Round = 0;
                 Server.PrintToChatAll($" {ChatColors.Blue}[BR] {ChatColors.Default}Admin disabled {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
         }
