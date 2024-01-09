@@ -77,10 +77,11 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         });
         RegisterEventHandler<EventRoundEnd>((@event, info) =>
         {
-            EndRound = true;
+            EndRound = false;
             IsRound = false;
             IsRoundNumber = 0;
             Round = 0;
+            return HookResult.Continue;
         });
         RegisterListener<Listeners.OnTick>(() =>
         {
