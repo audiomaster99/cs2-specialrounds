@@ -266,7 +266,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (CheckIsHaveWeapon("awp", player) == false)
                 {
                     player.GiveNamedItem("weapon_awp");
-                    WriteColor($"[[BR AWP]]] - Giving [{weapon.Value.DesignerName}] to [{player.PlayerName}]", ConsoleColor.Cyan);
+                    WriteColor($"[[BR AWP]]] - Giving [AWP] to [{player.PlayerName}]", ConsoleColor.Cyan);
                 }
             }
         }
