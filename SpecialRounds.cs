@@ -253,6 +253,23 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             IsRoundNumber = 0;
             NameOfRound = "";
         }
+        if (!IsRound && !WarmupPeriod)
+        {
+            foreach (var l_player in Utilities.GetPlayers())
+            {
+                CCSPlayerController player = l_player;
+                var client = player.Index;
+                if (player == null || !player.IsValid || !player.PlayerPawn.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
+                {
+                    return HookResult.Continue;
+                }
+                if (CheckIsHaveWeapon("awp", player) == false)
+                {
+                    player.GiveNamedItem("weapon_awp");
+                    WriteColor($"[[BR AWP]]] - Giving [{weapon.Value.DesignerName}] to [{player.PlayerName}]", ConsoleColor.Cyan);
+                }
+            }
+        }
         foreach (var l_player in Utilities.GetPlayers())
         {
             CCSPlayerController player = l_player;
