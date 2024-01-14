@@ -68,6 +68,8 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         WriteColor("Special round is [*Loaded*]", ConsoleColor.Green);
         RegisterListener<Listeners.OnMapStart>(name =>
         {
+            _gameRules = null;
+            AddTimer(1.0F, SetGameRules);
             EndRound = false;
             IsRound = false;
             NameOfRound = "";
@@ -126,16 +128,16 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (adminNoscope == false)
             {
-                // adminNoscope = true;
+                adminNoscope = true;
                 EndRound = false;
                 IsRound = true;
                 IsRoundNumber = 1;
                 NameOfRound = "NO SCOPE";
                 Server.PrintToChatAll($" {ChatColors.Blue}[BR] {ChatColors.Default}Admin started {ChatColors.Lime}No Scope {ChatColors.Default}round!");
             }
-            else
+            else if (adminNoscope == true)
             {
-                // adminNoscope = false;
+                adminNoscope = false;
                 EndRound = false;
                 IsRound = false;
                 NameOfRound = "";
@@ -253,7 +255,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             IsRoundNumber = 0;
             NameOfRound = "";
         }
-        if (!IsRound && !WarmupPeriod)
+        if (!IsRound || !WarmupPeriod)
         {
             foreach (var l_player in Utilities.GetPlayers())
             {
@@ -266,7 +268,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 if (CheckIsHaveWeapon("awp", player) == false)
                 {
                     player.GiveNamedItem("weapon_awp");
-                    WriteColor($"[[BR AWP]]] - Giving [AWP] to [{player.PlayerName}]", ConsoleColor.Cyan);
+                    WriteColor($"[[BR AWP]] - Giving [AWP] to [{player.PlayerName}]", ConsoleColor.Cyan);
                 }
             }
         }
