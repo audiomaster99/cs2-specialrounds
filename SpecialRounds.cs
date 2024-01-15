@@ -52,15 +52,15 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     }
 
     public bool WarmupPeriod
+    {
+        get
         {
-            get
-            {
-                if (_gameRules is null)
-                    SetGameRules();
+            if (_gameRules is null)
+                SetGameRules();
 
-                return _gameRules is not null && _gameRules.WarmupPeriod;
-            }
+            return _gameRules is not null && _gameRules.WarmupPeriod;
         }
+    }
     void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
 
     public override void Load(bool hotReload)
@@ -255,8 +255,12 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             IsRoundNumber = 0;
             NameOfRound = "";
         }
-        if (!IsRound || !WarmupPeriod)
+        if (!IsRound)
         {
+            if (WarmupPeriod)
+            {
+                return HookResult.Continue;
+            }
             foreach (var l_player in Utilities.GetPlayers())
             {
                 CCSPlayerController player = l_player;
