@@ -47,7 +47,7 @@ namespace SpecialRounds
 			if (pc == null)
 				return false;
 
-			if (!pc.IsValid || player.Connected != PlayerConnectedState.PlayerConnected || pc.PlayerPawn == null || pc.PlayerPawn.Value == null)
+			if (!pc.IsValid || pc.Connected != PlayerConnectedState.PlayerConnected || pc.PlayerPawn == null || pc.PlayerPawn.Value == null)
 				return false;
 
 			var pawn = pc.PlayerPawn.Value;
