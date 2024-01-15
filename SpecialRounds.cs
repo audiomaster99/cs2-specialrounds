@@ -254,6 +254,38 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             isset = false;
             IsRoundNumber = 0;
             NameOfRound = "";
+            Server.ExecuteCommand("sv_autobunnyhopping true");
+            Server.ExecuteCommand("sv_enablebunnyhopping true");
+            WriteColor($"[SCOUTWARMUP] - Warmup Started - Scout+Bhop Enabled", ConsoleColor.Green);
+            foreach (var l_player in Utilities.GetPlayers())
+            {
+                CCSPlayerController player = l_player;
+                var client = player.Index;
+                if (player == null || !player.IsValid || !player.PlayerPawn.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
+                {
+                    return HookResult.Continue;
+                }
+                if (CheckIsHaveWeapon("ssg08", player) == false)
+                {
+                    player.GiveNamedItem("weapon_ssg08");
+                    WriteColor($"[[SCOUT WARMUP] - Giving [Scout] to [{player.PlayerName}]", ConsoleColor.Yellow);
+                }
+                if (CheckIsHaveWeapon("taser", player) == false)
+                {
+                    player.GiveNamedItem("weapon_taser");
+                }
+            }
+            Server.NextFrame(() =>
+            {
+                AddTimer(45.0f, () => 
+                { 
+                    Server.PrintToChatAll($" {ChatColors.Red}[BR] {ChatColors.Default}Good Luck & Have Fun <3");
+                    Server.ExecuteCommand("sv_autobunnyhopping false");
+                    Server.ExecuteCommand("sv_enablebunnyhopping false");
+                    Server.ExecuteCommand("mp_warmup_end");
+                    WriteColor($"[SCOUTWARMUP] - Warmup Ended - Scout+Bhop Disabled", ConsoleColor.Red);
+                });
+            });
         }
         if (!IsRound)
         {
