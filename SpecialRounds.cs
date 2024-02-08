@@ -95,13 +95,12 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         });
         RegisterListener<Listeners.OnTick>(() =>
         {
-            if(Config.PluginEnabled) // if Plugin is Enabled
+
+            foreach (var player in Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }))
             {
-                foreach (var player in Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }))
-                {
-                    if(player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
-                }
+                if(player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
             }
+            
             
         });
         // RegisterListener<Listeners.OnTick>(() =>
