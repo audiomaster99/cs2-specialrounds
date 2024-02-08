@@ -87,7 +87,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
         });
         RegisterEventHandler<EventRoundStart>((@event, info) =>
         {
-            if(IsRound)
+            if(IsRound == true)
             {
                 Server.PrintToChatAll($" {ChatColors.Red}[BR] {ChatColors.Default}Special Round: {ChatColors.Gold}[{NameOfRound}] {ChatColors.Default}round has started!");
             }
