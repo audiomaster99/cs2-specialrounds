@@ -85,32 +85,32 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             Round = 0;
             return HookResult.Continue;
         });
-        RegisterListener<Listeners.OnTick>(() =>
-        {
-            for (int i = 1; i < Server.MaxPlayers; i++)
-            {
-                var ent = NativeAPI.GetEntityFromIndex(i);
-                if (ent == 0)
-                    continue;
+        // RegisterListener<Listeners.OnTick>(() =>
+        // {
+        //     for (int i = 1; i < Server.MaxPlayers; i++)
+        //     {
+        //         var ent = NativeAPI.GetEntityFromIndex(i);
+        //         if (ent == 0)
+        //             continue;
 
-                var client = new CCSPlayerController(ent);
-                if (client == null || !client.IsValid)
-                    continue;
-                if (IsRound)
-                {
-                    client.PrintToCenterHtml(
-                    $"<font color='gray'>***</font> <font class='fontSize-m' color='white'> SPECIAL ROUND</font><font color='gray'> ***</font><br>" +
-                    $"<font class='fontSize-l' color='Green'>[{NameOfRound}]</font><br>" +
-                    $"<font class='fontSize-s' color='Orange'>www.BRUTALCI.info</font>"
-                    );
-                }
-                OnTick(client);
-            }
-            foreach (var player in Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }))
-            {
-                if (player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
-            }
-        });
+        //         var client = new CCSPlayerController(ent);
+        //         if (client == null || !client.IsValid)
+        //             continue;
+        //         if (IsRound)
+        //         {
+        //             client.PrintToCenterHtml(
+        //             $"<font color='gray'>***</font> <font class='fontSize-m' color='white'> SPECIAL ROUND</font><font color='gray'> ***</font><br>" +
+        //             $"<font class='fontSize-l' color='Green'>[{NameOfRound}]</font><br>" +
+        //             $"<font class='fontSize-s' color='Orange'>www.BRUTALCI.info</font>"
+        //             );
+        //         }
+        //         OnTick(client);
+        //     }
+        //     foreach (var player in Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }))
+        //     {
+        //         if (player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
+        //     }
+        // });
     }
     public static SpecialRounds It;
     public SpecialRounds()
@@ -247,6 +247,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     [GameEventHandler]
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
+        if(IsRound)
+        {
+            Server.PrintToChatAll($" {ChatColors.Red}[BR] {ChatColors.Default}Special Round: {ChatColors.Gold}[{NameOfRound}] {ChatColors.Default}round has started!");
+        }
         if (WarmupPeriod)
         {
             IsRound = false;
