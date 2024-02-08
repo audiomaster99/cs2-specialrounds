@@ -85,6 +85,25 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             Round = 0;
             return HookResult.Continue;
         });
+        RegisterEventHandler<EventRoundStart>((@event, info) =>
+        {
+            if(IsRound)
+            {
+                Server.PrintToChatAll($" {ChatColors.Red}[BR] {ChatColors.Default}Special Round: {ChatColors.Gold}[{NameOfRound}] {ChatColors.Default}round has started!");
+            }
+            return HookResult.Continue;
+        });
+        RegisterListener<Listeners.OnTick>(() =>
+        {
+            if(Config.PluginEnabled) // if Plugin is Enabled
+            {
+                foreach (var player in Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }))
+                {
+                    if(player.Pawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)OnTick(player);
+                }
+            }
+            
+        });
         // RegisterListener<Listeners.OnTick>(() =>
         // {
         //     for (int i = 1; i < Server.MaxPlayers; i++)
@@ -247,10 +266,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     [GameEventHandler]
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        if(IsRound)
-        {
-            Server.PrintToChatAll($" {ChatColors.Red}[BR] {ChatColors.Default}Special Round: {ChatColors.Gold}[{NameOfRound}] {ChatColors.Default}round has started!");
-        }
+        
         if (WarmupPeriod)
         {
             IsRound = false;
@@ -283,7 +299,6 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 AddTimer(45.0f, () => 
                 { 
-                    Server.PrintToChatAll($" {ChatColors.Red}[BR] {ChatColors.Default}Good Luck & Have Fun <3");
                     Server.ExecuteCommand("sv_autobunnyhopping false");
                     Server.ExecuteCommand("sv_enablebunnyhopping false");
                     Server.ExecuteCommand("mp_warmup_end");
@@ -436,7 +451,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                             if(Config.NoScopeMsg)
                             {
                                 Server.NextFrame(() => {
-                                    player.PrintToCenter($" {ChatColors.Red}!! NO SCOPE !!");
+                                    player.PrintToCenter($" {ChatColors.Red}No Scope!");
                                 });
                             }
                         }  
